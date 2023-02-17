@@ -5,3 +5,8 @@ HEADERS = {
 }
 URL = 'https://satu.kz/c695487-biota.html'
 DOMEN = 'https://satu.kz'
+
+product_link = 'http://164.90.224.228/product/products/'
+category_link = 'http://164.90.224.228/product/category/'
+user_link = 'http://164.90.224.228/user/user/'
+cart_link = 'http://164.90.224.228/user/cart/'
