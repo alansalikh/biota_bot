@@ -4,7 +4,7 @@ import requests
 
 from config import TOKEN, product_link, category_link, user_link, cart_link
 from main import insert_user, is_user_exists, create_inline_markup, insert_in_cart, update_cart
-from products import get_product, get_product_image, get_category, get_products, get_user_id
+from products import get_product_image, get_category, get_user_id
 
 bot = telebot.TeleBot(TOKEN)
 products = {
