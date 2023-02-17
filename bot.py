@@ -4,7 +4,7 @@ import requests
 
 from config import TOKEN, product_link, category_link, user_link, cart_link
 from main import insert_user, is_user_exists, create_inline_markup, insert_in_cart, update_cart
-from products import send_phone, get_product, get_product_image, get_category, get_products
+from products import get_product, get_product_image, get_category, get_products, get_user_id
 
 bot = telebot.TeleBot(TOKEN)
 products = {
@@ -21,7 +21,7 @@ def start(message: types.Message):
     item1 = types.KeyboardButton('Зарегистрироваться', request_contact=True)
     markup.add(item1)
 
-    text = "Привет это Бот ЗАРЕГИСТРИРУЙТЕСЬ"
+    text = "Здравствуйте это бот магазина Биота"
     bot.send_message(message.chat.id, text=text, reply_markup=markup)
 
 
@@ -71,8 +71,10 @@ def text(message: types.Message):
             item3 = types.KeyboardButton('Корзина')
             markup.add(item1, item2, item3)
             bot.send_message(message.chat.id, text='Корзина:', reply_markup= markup)
+            quantity = 0
             for i in requests.get(cart_link).json():
                 if str(i['user']) == str(user_id):
+                    quantity += 1
                     product = i
                     get_product_image(product_link)
                     photo = product['image']
@@ -84,6 +86,8 @@ def text(message: types.Message):
                     item2 = types.InlineKeyboardButton('Изменить количество', callback_data=f"change_{product['id']}")
                     markup.add(item1, item2)
                     bot.send_photo(message.chat.id, photo=photo, caption=caption, reply_markup=markup)    
+            if quantity == 0:
+                bot.send_message(message.chat.id, text='Вы еще ничего не добавили в корзину')
         if message.text.lower() == 'вернуться в каталог':
             category = get_category(category_link)      
             markup = create_inline_markup(row_width=3, kwargs=category)
@@ -92,12 +96,11 @@ def text(message: types.Message):
         if message.text.lower() == 'оформить заказ':
             text = ''
             price = 0
-            for i in requests.get(user_link).json():
-                if i['chat_id'] == str(message.chat.id):
-                    user_id = i['id']
+            user_id = get_user_id(message.chat.id)
+            kol = 0
             for i in requests.get(cart_link).json():
-                print(i)
                 if str(i['user']) == str(user_id):
+                    kol += 1
                     product = i
                     photo = f"media/{product['title']}.png"
                     photo = open(photo, 'rb')
@@ -108,7 +111,10 @@ def text(message: types.Message):
                     text = text + product['title'] + f" {product['price'][:-3]}*{product['quantity']}={int(product['price'][:-3])*int(product['quantity'])}" + '\n'
                     bot.send_photo(message.chat.id, photo=photo, caption=caption)
             text = text + 'Общая сумма: ' + str(price)
-            bot.send_message(message.chat.id, text)
+            if kol == 0:
+                bot.send_message(message.chat.id, 'Невозможно оформить заказ так как корзина пуста, добавьте товары в козину для оформления заказа')
+            else:
+                bot.send_message(message.chat.id, text)
 
             
 @bot.callback_query_handler(func=lambda call: True)

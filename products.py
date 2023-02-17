@@ -2,7 +2,7 @@ import urllib.request
 from PIL import Image
 import requests
 
-from config import product_link
+from config import product_link, user_link
 
 def get_category(url):
     r = requests.get(url)
@@ -34,3 +34,8 @@ def get_products(url):
         return data
     return None
 
+def get_user_id(chat_id):
+    for i in requests.get(user_link).json():
+        if i['chat_id'] == str(chat_id):
+            return i['id']
+        
