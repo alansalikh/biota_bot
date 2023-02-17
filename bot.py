@@ -55,39 +55,40 @@ def text(message: types.Message):
             markup = create_inline_markup(row_width=3, kwargs=category)
             bot.send_message(message.chat.id, 'Выберите категорию:', reply_markup=markup)
         if message.text.lower() == 'корзина':
-            try:
+            if str(message.chat.id) in [i['chat_id'] for i in requests.get(user_link).json()]:
                 for i in requests.get(user_link).json():
                     if i['chat_id'] == str(message.chat.id):
                         user_id = i['id']
-            except:    
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item1 = types.KeyboardButton('Оформить заказ')
+                item2 = types.KeyboardButton('Вернуться в каталог')
+                item3 = types.KeyboardButton('Корзина')
+                markup.add(item1, item2, item3)
+                bot.send_message(message.chat.id, text='Корзина:', reply_markup= markup)
+                quantity = 0
+                for i in requests.get(cart_link).json():
+                    if str(i['user']) == str(user_id):
+                        quantity += 1
+                        product = i
+                        get_product_image(product_link)
+                        photo = product['image']
+                        photo = open(photo, 'rb')
+                        description = product['description']
+                        caption = f"{product['title']}\nЦена: {product['price'][:-3]}*{product['quantity']}={int(product['price'][:-3])*int(product['quantity'])}\n{description}"
+                        markup = types.InlineKeyboardMarkup(row_width=2)
+                        item1 = types.InlineKeyboardButton('Удалить из корзины', callback_data=f"delete_{product['id']}")
+                        item2 = types.InlineKeyboardButton('Изменить количество', callback_data=f"change_{product['id']}")
+                        markup.add(item1, item2)
+                        bot.send_photo(message.chat.id, photo=photo, caption=caption, reply_markup=markup)    
+                if quantity == 0:
+                    bot.send_message(message.chat.id, text='Вы еще ничего не добавили в корзину')
+            else:    
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 item1 = types.KeyboardButton('Зарегистрироваться', request_contact=True)
                 markup.add(item1)
                 text = 'Вы не зарегистрированы, зарегистрируйтесь'
                 bot.send_message(message.chat.id, text=text, reply_markup=markup)
-            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-            item1 = types.KeyboardButton('Оформить заказ')
-            item2 = types.KeyboardButton('Вернуться в каталог')
-            item3 = types.KeyboardButton('Корзина')
-            markup.add(item1, item2, item3)
-            bot.send_message(message.chat.id, text='Корзина:', reply_markup= markup)
-            quantity = 0
-            for i in requests.get(cart_link).json():
-                if str(i['user']) == str(user_id):
-                    quantity += 1
-                    product = i
-                    get_product_image(product_link)
-                    photo = product['image']
-                    photo = open(photo, 'rb')
-                    description = product['description']
-                    caption = f"{product['title']}\nЦена: {product['price'][:-3]}*{product['quantity']}={int(product['price'][:-3])*int(product['quantity'])}\n{description}"
-                    markup = types.InlineKeyboardMarkup(row_width=2)
-                    item1 = types.InlineKeyboardButton('Удалить из корзины', callback_data=f"delete_{product['id']}")
-                    item2 = types.InlineKeyboardButton('Изменить количество', callback_data=f"change_{product['id']}")
-                    markup.add(item1, item2)
-                    bot.send_photo(message.chat.id, photo=photo, caption=caption, reply_markup=markup)    
-            if quantity == 0:
-                bot.send_message(message.chat.id, text='Вы еще ничего не добавили в корзину')
+            
         if message.text.lower() == 'вернуться в каталог':
             category = get_category(category_link)      
             markup = create_inline_markup(row_width=3, kwargs=category)
