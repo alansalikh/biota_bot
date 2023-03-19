@@ -1,6 +1,7 @@
 import urllib.request
 from PIL import Image
 import requests
+import os
 
 from config import product_link, user_link
 
@@ -13,9 +14,11 @@ def get_product_image(url):
     r = requests.get(url)
     datas = r.json()
     for data in datas:
-        urllib.request.urlretrieve(data['image'], f"media/{data['title']}.png")
-        image = Image.open(f"media/{data['title']}.png")
-    return image
+        folder = '/home/salikh/bot/biota_bot/media/'
+        filename = f"{data['call_back']}"
+
+        if not os.path.isfile(folder+filename):
+            urllib.request.urlretrieve(data['image'], f"media/{data['call_back']}.png")
 
 def get_product(category):
     url = product_link
