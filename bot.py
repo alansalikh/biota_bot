@@ -106,16 +106,17 @@ def text(message: types.Message):
             for i in requests.get(cart_link).json():
                 if str(i['user']) == str(user_id):
                     kol += 1
+                    print(kol)
                     product = i
                     price = price + int(product['price'][:-3])*product['quantity']
-                    caption = f"{product['title']}\nЦена: {product['price'][:-3]}*{product['quantity']}={int(product['price'][:-3])*int(product['quantity'])}"
-                    text = text + product['title'] + f" {product['price'][:-3]}*{product['quantity']}={int(product['price'][:-3])*int(product['quantity'])}" + '\n'
-            text = text + 'Общая сумма: ' + str(price)
+                    text = text + f"{kol}) " + product['title'] + f" {product['price'][:-3]}*{product['quantity']}={int(product['price'][:-3])*int(product['quantity'])}₸" + '\n'
+            w_text = text
+            text = text + 'Общая сумма: ' + f"{price}₸"
             if kol == 0:
                 bot.send_message(message.chat.id, 'Невозможно оформить заказ так как корзина пуста, добавьте товары в козину для оформления заказа')
             else:
                 bot.send_message(message.chat.id, text)
-                bot.send_message(admin_id, phone_number+'\n'+text)
+                bot.send_message(admin_id, phone_number+'\n'+w_text)
 
             
 @bot.callback_query_handler(func=lambda call: True)
