@@ -20,14 +20,15 @@ def get_product_image(url):
         if not os.path.isfile(folder+filename):
             urllib.request.urlretrieve(data['image'], f"media/{data['call_back']}.png")
 
-def get_product(category):
-    url = product_link
-    products = requests.get(url).json()
-    product_list = []
-    for product in products:
-        if product['category'] == category:
-            product_list.append(product)
-    return product_list
+def get_product(url, category):
+    r = requests.get(url)
+    datas = r.json()
+    product = {}
+    for data in datas:
+        if int(category) == data['category']:
+            x = "photo_" + data['call_back']
+            product[x] = data['title']
+    return product
 
 
 def get_products(url):

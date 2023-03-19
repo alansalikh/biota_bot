@@ -4,7 +4,7 @@ import requests
 
 from config import TOKEN, product_link, category_link, user_link, cart_link, admin_id
 from main import insert_user, is_user_exists, create_inline_markup, insert_in_cart, update_cart
-from products import get_product_image, get_category, get_user_id
+from products import get_product_image, get_category, get_user_id, get_product
 
 bot = telebot.TeleBot(TOKEN)
 products = {
@@ -128,29 +128,34 @@ def callback_handler(call):
                 for i in range(1, len(category)+1):
                     if i == int(call.data):
                         categories = category[i]
-                bot.send_message(call.message.chat.id, text=f'{categories}:')
                 quantity = 0
-                for i in requests.get(product_link).json():
-                    if i['category'] == int(call.data):
-                        from pprint import pprint
-                        quantity += 1
-                        product = i
-                        caption = f"{product['title']}\nЦена: {product['price']}"
-                        markup = types.InlineKeyboardMarkup(row_width=2)
-                        call_back = product['call_back']
-                        item = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
-                        item1 = types.InlineKeyboardButton(text='Показать фото и описание', callback_data=f"photo_{call_back}")
-                        markup.add(item, item1)
-                        bot.send_message(call.message.chat.id, text=caption, reply_markup=markup)
+                # for i in requests.get(product_link).json():
+                #     if i['category'] == int(call.data):
+                        # from pprint import pprint
+                        # quantity += 1
+                        # product = i
+                        # caption = f"{product['title']}\nЦена: {product['price']}"
+                        # markup = types.InlineKeyboardMarkup(row_width=2)
+                        # call_back = product['call_back']
+                        # item = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
+                        # item1 = types.InlineKeyboardButton(text='Показать фото и описание', callback_data=f"photo_{call_back}")
+                        # markup.add(item, item1)
+                        # bot.send_message(call.message.chat.id, text=caption, reply_markup=markup)
+                        # quantity += 1
+                products_dict = get_product(product_link, call.data)
+                print(products_dict)
+                if get_product(product_link, call.data):
+                    quantity += 1
+                markup = create_inline_markup(1, products_dict)
+                bot.send_message(call.message.chat.id, text=f'{categories}:', reply_markup=markup)
                 if quantity == 0:
                     bot.send_message(call.message.chat.id, text='К сожелению в этой категории ничего нету')
-                category = get_category(category_link)      
-                markup = create_inline_markup(row_width=3, kwargs=category)
-                bot.send_message(call.message.chat.id, 'Выберите категорию:', reply_markup=markup)
+                # category = get_category(category_link)      
+                # markup = create_inline_markup(row_width=3, kwargs=category)
+                # bot.send_message(call.message.chat.id, 'Выберите категорию:', reply_markup=markup)
             if call.data in [str(i['call_back']) for i in requests.get(product_link).json()]:
                 for i in requests.get(product_link).json():
                     if i['call_back'] == call.data:
-                        print(call.data)
                         product = i
                         title = product['title']
                         price = product['price']
@@ -164,7 +169,6 @@ def callback_handler(call):
                         products['description'] = description
                         products['image'] = image
                         products['chat_id'] = chat_id
-                        print(products)
                         # insert_in_cart(products['chat_id'], products['title'], products['price'], products['description'], products['image'])
 
                         msg = bot.send_message(call.message.chat.id, text='Сколько штук?')
@@ -217,7 +221,7 @@ def callback_handler(call):
                         markup.add(item)
                         bot.send_photo(call.message.chat.id, photo=photo, caption=caption, reply_markup=markup, reply_to_message_id=call.message.message_id)
 
-
+            # print(call.data)
     except: 
         pass
 
