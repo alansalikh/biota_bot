@@ -220,8 +220,6 @@ def callback_handler(call):
                         item2 = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
                         item3 = types.InlineKeyboardButton(text='Показать фото', callback_data=callback_photo)
                         markup.add(item1, item2, item3)
-                        media = types.InputMediaPhoto(media=photo, caption=caption)
-                        print(media)
                         bot.edit_message_text(chat_id=call.message.chat.id, text=caption, reply_markup=markup, message_id=call.message.message_id)
             if call.data[:6] == 'photo_':
                 call_back = call.data[6::]
@@ -231,7 +229,14 @@ def callback_handler(call):
                 for i in requests.get(product_link).json():
                     if i['call_back'] == call_back:
                         text = i['title']
-                bot.send_photo(call.message.chat.id, photo=photo, caption=text)
+                markup = types.InlineKeyboardMarkup(row_width=1)
+                callback = "deletephoto_" + call_back
+                print(callback)
+                item = types.InlineKeyboardButton('Свернуть фото', callback_data=callback)
+                markup.add(item)
+                bot.send_photo(call.message.chat.id, photo=photo, caption=text, reply_markup=markup)
+            if call.data[:12] == 'deletephoto_':
+                bot.delete_message(call.message.chat.id, message_id=call.message.message_id, timeout=0)
             if call.data[:5] == 'edit_':
                 print(call.data)
                 categorys = call.data[5::]
