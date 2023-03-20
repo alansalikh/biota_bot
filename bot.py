@@ -121,7 +121,7 @@ def text(message: types.Message):
             
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-    try:
+
         if call.message:
             if call.data in [str(i['id']) for i in requests.get(category_link).json()]:
                 category = get_category(category_link)
@@ -216,14 +216,33 @@ def callback_handler(call):
                         description = i['description']
                         caption = f"{i['title']}\nЦена: {i['price']}\n{description}"
                         call_back = i['call_back']
-                        markup = types.InlineKeyboardMarkup(row_width=1)
-                        item = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
-                        markup.add(item)
-                        bot.send_photo(call.message.chat.id, photo=photo, caption=caption, reply_markup=markup, reply_to_message_id=call.message.message_id)
-
+                        markup = types.InlineKeyboardMarkup(row_width=2)
+                        callback =  "edit_" + str(i['category'])
+                        item1 = types.InlineKeyboardButton(text='Назад', callback_data=callback)
+                        item2 = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
+                        markup.add(item1, item2)
+                        media = types.InputMediaPhoto(media=photo, caption=caption)
+                        print(media)
+                        bot.edit_message_text(chat_id=call.message.chat.id, text=caption, reply_markup=markup, message_id=call.message.message_id)
+            if call.data[:5] == 'edit_':
+                print(call.data)
+                categorys = call.data[5::]
+                category = get_category(category_link)
+                for i in range(1, len(category)+1):
+                    if i == int(categorys):
+                        categories = category[i]
+                quantity = 0
+                products_dict = get_product(product_link, categorys)
+                if get_product(product_link, categorys):
+                    quantity += 1
+                markup = create_inline_markup(1, products_dict)
+                print(call.message.message_id)
+                text = f"{categories:}"
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=text, reply_markup=markup)
+                if quantity == 0:
+                    bot.send_message(call.message.chat.id, text='К сожелению в этой категории ничего нету')
             # print(call.data)
-    except: 
-        pass
+
 
 def change_product(message):
     try:
