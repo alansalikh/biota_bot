@@ -147,9 +147,17 @@ def callback_handler(call):
                 if get_product(product_link, call.data):
                     quantity += 1
                 markup = create_inline_markup(1, products_dict)
-                bot.send_message(call.message.chat.id, text=f'{categories}:', reply_markup=markup)
-                if quantity == 0:
-                    bot.send_message(call.message.chat.id, text='К сожелению в этой категории ничего нету')
+                try:
+                    message_id = call.message.message_id + 1
+                    print(message_id)
+                    print(call.message.message_id)
+                    bot.edit_message_text(chat_id=call.message.chat.id, message_id=message_id ,text=f'{categories}:', reply_markup=markup)
+                    if quantity == 0:
+                        bot.send_message(call.message.chat.id, text='К сожелению в этой категории ничего нету')
+                except:
+                    bot.send_message(call.message.chat.id, text=f'{categories}:', reply_markup=markup)
+                    if quantity == 0:
+                        bot.send_message(call.message.chat.id, text='К сожелению в этой категории ничего нету')
                 # category = get_category(category_link)      
                 # markup = create_inline_markup(row_width=3, kwargs=category)
                 # bot.send_message(call.message.chat.id, 'Выберите категорию:', reply_markup=markup)
@@ -220,6 +228,7 @@ def callback_handler(call):
                         item2 = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
                         item3 = types.InlineKeyboardButton(text='Показать фото', callback_data=callback_photo)
                         markup.add(item1, item2, item3)
+                        print(call.message.message_id)
                         bot.edit_message_text(chat_id=call.message.chat.id, text=caption, reply_markup=markup, message_id=call.message.message_id)
             if call.data[:6] == 'photo_':
                 call_back = call.data[6::]
