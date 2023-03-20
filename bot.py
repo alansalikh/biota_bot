@@ -205,25 +205,33 @@ def callback_handler(call):
                         print(products)
                 msg = bot.send_message(call.message.chat.id, 'Введите количество')
                 bot.register_next_step_handler(msg, change_product)
-            if call.data[:6] == 'photo_':
-                print(call.data[6:])
-                product = call.data[6::]
+            if call.data[:5] == 'text_':
+                print(call.data[5:])
+                product = call.data[5::]
                 for i in requests.get(product_link).json():
                     if i['call_back'] == product:
-                        get_product_image(product_link)
-                        photo = f"media/{i['call_back']}.png"
-                        photo = open(photo, 'rb') 
                         description = i['description']
                         caption = f"{i['title']}\nЦена: {i['price']}\n{description}"
                         call_back = i['call_back']
-                        markup = types.InlineKeyboardMarkup(row_width=2)
+                        callback_photo = "photo_" + i['call_back']
+                        markup = types.InlineKeyboardMarkup(row_width=3)
                         callback =  "edit_" + str(i['category'])
                         item1 = types.InlineKeyboardButton(text='Назад', callback_data=callback)
                         item2 = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
-                        markup.add(item1, item2)
+                        item3 = types.InlineKeyboardButton(text='Показать фото', callback_data=callback_photo)
+                        markup.add(item1, item2, item3)
                         media = types.InputMediaPhoto(media=photo, caption=caption)
                         print(media)
                         bot.edit_message_text(chat_id=call.message.chat.id, text=caption, reply_markup=markup, message_id=call.message.message_id)
+            if call.data[:6] == 'photo_':
+                call_back = call.data[6::]
+                get_product_image(product_link)
+                photo = f"media/{call_back}.png"
+                photo = open(photo, 'rb') 
+                for i in requests.get(product_link).json():
+                    if i['call_back'] == call_back:
+                        text = i['title']
+                bot.send_photo(call.message.chat.id, photo=photo, caption=text)
             if call.data[:5] == 'edit_':
                 print(call.data)
                 categorys = call.data[5::]

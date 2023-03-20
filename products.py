@@ -26,7 +26,7 @@ def get_product(url, category):
     product = {}
     for data in datas:
         if int(category) == data['category']:
-            x = "photo_" + data['call_back']
+            x = "text_" + data['call_back']
             product[x] = data['title']
     return product
 
