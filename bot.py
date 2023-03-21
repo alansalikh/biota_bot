@@ -31,7 +31,7 @@ def contact(message: types.Message):
     if message.contact is not None:
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton('Продукты')
+        item1 = types.KeyboardButton('Товары')
         item2 = types.KeyboardButton('Корзина')
         markup.add(item1, item2)
 
@@ -51,7 +51,7 @@ def contact(message: types.Message):
 @bot.message_handler(content_types=['text'])
 def text(message: types.Message):
     if message.chat.type == 'private':
-        if message.text.lower() == 'продукты':
+        if message.text.lower() == 'товары':
             category = get_category(category_link)      
             markup = create_inline_markup(row_width=3, kwargs=category)
             bot.send_message(message.chat.id, 'Выберите категорию:', reply_markup=markup)
@@ -116,6 +116,7 @@ def text(message: types.Message):
                 bot.send_message(message.chat.id, 'Невозможно оформить заказ так как корзина пуста, добавьте товары в козину для оформления заказа')
             else:
                 bot.send_message(message.chat.id, text)
+                bot.send_message(message.chat.id, text='Спасибо за ваш заказ! Наш менеджер свяжется с вами в ближайшее время для уточнения деталей или подтверждения готовности заказа к отправке')
                 bot.send_message(admin_id, phone_number+'\n'+w_text)
 
             
