@@ -237,7 +237,7 @@ def callback_handler(call):
                 print(call.data)
                 categorys = call.data[5::]
                 category = get_category(category_link)
-                for i in range(1, len(category)+1):
+                for i in category:
                     if i == int(categorys):
                         categories = category[i]
                 quantity = 0
