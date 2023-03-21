@@ -126,32 +126,18 @@ def callback_handler(call):
         if call.message:
             if call.data in [str(i['id']) for i in requests.get(category_link).json()]:
                 category = get_category(category_link)
-                for i in range(1, len(category)+1):
-                    if i == int(call.data):
+                for i in category:
+                    if int(i) == int(call.data):
+                        print(i)
                         categories = category[i]
+                        print(categories)
                 quantity = 0
-                # for i in requests.get(product_link).json():
-                #     if i['category'] == int(call.data):
-                        # from pprint import pprint
-                        # quantity += 1
-                        # product = i
-                        # caption = f"{product['title']}\nЦена: {product['price']}"
-                        # markup = types.InlineKeyboardMarkup(row_width=2)
-                        # call_back = product['call_back']
-                        # item = types.InlineKeyboardButton(text='Добавить в корзину', callback_data=call_back)
-                        # item1 = types.InlineKeyboardButton(text='Показать фото и описание', callback_data=f"photo_{call_back}")
-                        # markup.add(item, item1)
-                        # bot.send_message(call.message.chat.id, text=caption, reply_markup=markup)
-                        # quantity += 1
                 products_dict = get_product(product_link, call.data)
-                print(products_dict)
                 if get_product(product_link, call.data):
                     quantity += 1
                 markup = create_inline_markup(1, products_dict)
                 try:
                     message_id = call.message.message_id + 1
-                    print(message_id)
-                    print(call.message.message_id)
                     bot.edit_message_text(chat_id=call.message.chat.id, message_id=message_id ,text=f'{categories}:', reply_markup=markup)
                     if quantity == 0:
                         bot.send_message(call.message.chat.id, text='К сожелению в этой категории ничего нету')
