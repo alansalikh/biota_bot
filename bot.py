@@ -135,7 +135,7 @@ def callback_handler(call):
                 products_dict = get_product(product_link, call.data)
                 if get_product(product_link, call.data):
                     quantity += 1
-                markup = create_inline_markup(1, products_dict)
+                markup = create_inline_markup(2, products_dict)
                 try:
                     message_id = call.message.message_id + 1
                     bot.edit_message_text(chat_id=call.message.chat.id, message_id=message_id ,text=f'{categories}:', reply_markup=markup)
